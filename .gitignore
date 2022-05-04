@@ -1,6 +1,6 @@
 *.vcxproj
 *.sln
 *.qrc
-/x64
-/.vs
+ServiceManager/x64
+ServiceManager/.vs
 *.exe
