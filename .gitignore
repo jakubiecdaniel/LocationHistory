@@ -1,0 +1,6 @@
+*.vcxproj
+*.sln
+*.qrc
+/x64
+/.vs
+*.exe
