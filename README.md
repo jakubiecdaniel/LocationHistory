@@ -7,3 +7,5 @@ ServiceManager contains a GUI to install, start, stop and uninstall the Location
 WindowsLocation is a service program that gathers the local Wifi networks using the Windows API and sends requests to the Google API and the website
 
 The Website provides a front end for viewing the user's Location History
+
+![Location History Website example](https://puu.sh/IYBBR/606a44fa14.png)
