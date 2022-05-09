@@ -5,3 +5,11 @@
 ServiceManager/x64
 ServiceManager/.vs
 *.exe
+WindowsLocation/Debug
+WindowsLocation/Release
+WindowsLocation/logs
+WindowsLocation/.git
+WindowsLocation/.vs
+LocationHistoryWebsite/LocationHistory/__pycache__
+LocationHistoryWebsite/LocationHistory/migrations
+LocationHistoryWebsite/db.sqlite3
