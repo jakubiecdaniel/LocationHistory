@@ -66,7 +66,7 @@
                           <th scope="col" style="width:12%" class="col text-nowrap text-end">Longitude</th>
                         </tr>
                     </thead>
-                    {% if log_list %} 
+                   
                     {% for location in log_list %}
                     <tr class="align-middle">
                         <td class="map" id="map{{ forloop.counter }}" style="height: 300px; width: 50%; border-style: solid; box-shadow: 7px 7px 5px lightgray;"></td>
@@ -74,8 +74,10 @@
                         <td class="text-nowrap text-end" ><h1>{{location.location_latitude}}</h1></td>
                         <td class="text-nowrap text-end" ><h1>{{location.location_longitude}}</h1></td>
                     </tr>
+                    {% empty %}
+                        <td class="text-center" colspan="5">No Data, use the Location History program to add some!</td>
                     {% endfor %}
-                    {% endif %}
+                    
                 </table>
             </div>
 

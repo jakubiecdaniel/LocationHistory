@@ -1,11 +1,11 @@
-from django.http.response import Http404, HttpResponse, HttpResponseRedirect
+from django.http.response import HttpResponseNotFound, HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import render
+from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from django import forms
 from .models import LocationHistory
 from .models import LocationHistoryUser
 from django.core.paginator import Paginator
-from django.shortcuts import redirect
 from django.core import serializers
 from django.core.exceptions import ValidationError
 import json
@@ -48,7 +48,7 @@ class LocationFilterForm(forms.Form):
     records_per_page.widget.attrs.update({'class':'form-select'})
 
 def view_location_list(request,user_id):
-    print('here')
+    
     from_date = request.GET.get('from_date', None)
     to_date = request.GET.get('to_date',None)
     order_by = request.GET.get('order_by',None)
@@ -57,12 +57,9 @@ def view_location_list(request,user_id):
     try:
         user = LocationHistoryUser.objects.get(pk=user_id)
     except LocationHistoryUser.DoesNotExist:
-        raise Http404("Log does not exist")
+        return HttpResponseNotFound("User Not Found") #Todo, redirect home and display this message?
 
     log_list = user.LocationHistoryLogs.all()
-
-    if not log_list :
-        return HttpResponse('No Data')
 
     form = LocationFilterForm()
 
@@ -89,7 +86,7 @@ def view_location_list(request,user_id):
     page = request.GET.get('page')
     if page == None:
         page = '1'
-    print(page)
+    
     list = p.get_page(page)
 
     page_list = []
@@ -109,7 +106,7 @@ def view_location_list(request,user_id):
         for i in range(start,end + 1):
             page_list += [str(i)]
 
-
+    
     log_list_json = serializers.serialize("json",list)
 
     return render(request, 'LocationHistory/LocationHistoryList.html', {'log_list':list,'log_list_json':log_list_json,'form':form,'page_list':page_list})
@@ -130,12 +127,12 @@ def new_location(request):
             
             user_id = data['user']
         except KeyError as err:
-             return HttpResponse("Key Error: " + str(err))
+             return HttpResponseBadRequest("Key Error: " + str(err))
 
         try:
             x = LocationHistoryUser.objects.get(pk=user_id)
         except ValidationError as err:
-            return HttpResponse(err)
+            return HttpResponseBadRequest(err)
         else:
             new_log = LocationHistory(location_latitude=lat, location_longitude=long, location_accuracy=accuracy,location_datetime=datetime.datetime.now(),user=x)
             new_log.save()
@@ -144,4 +141,4 @@ def new_location(request):
         
 
     else:
-        return HttpResponse('Must be POST')
+        return HttpResponseForbidden('Must be POST')
