@@ -5,8 +5,9 @@ from django import forms
 from .models import LocationHistory
 from .models import LocationHistoryUser
 from django.core.paginator import Paginator
-
+from django.shortcuts import redirect
 from django.core import serializers
+from django.core.exceptions import ValidationError
 import json
 import datetime
 # Create your views here.
@@ -23,7 +24,8 @@ def generateUUID(request):
     return HttpResponse(uuid.user_id)
 
 def index(request):
-
+    if request.get_full_path() == '/':
+        return redirect('/LocationHistory/')
     return render(request, 'LocationHistory/LocationHistoryIndex.html')
 
 def view_location_single(request,user_id,log_id):
@@ -46,7 +48,7 @@ class LocationFilterForm(forms.Form):
     records_per_page.widget.attrs.update({'class':'form-select'})
 
 def view_location_list(request,user_id):
-
+    print('here')
     from_date = request.GET.get('from_date', None)
     to_date = request.GET.get('to_date',None)
     order_by = request.GET.get('order_by',None)
@@ -110,40 +112,35 @@ def view_location_list(request,user_id):
 
     log_list_json = serializers.serialize("json",list)
 
-    
-    
     return render(request, 'LocationHistory/LocationHistoryList.html', {'log_list':list,'log_list_json':log_list_json,'form':form,'page_list':page_list})
 
 @csrf_exempt
 def new_location(request):
-    #Todo work on error handling
+    
     if request.method == "POST":
         print(request.body)
         
         try:
             data = json.loads(request.body)
-
             location_data = data['location']['location']
-            #location_data = data['location']
-            print(location_data)
-
+            
             lat = location_data['lat']
             long = location_data['lng']
             accuracy = data['location']['accuracy']
-
-            #user_id = data['user']['uuid']
+            
             user_id = data['user']
-        except:
-            return HttpResponse("Incorrect Format")
+        except KeyError as err:
+             return HttpResponse("Key Error: " + str(err))
 
         try:
             x = LocationHistoryUser.objects.get(pk=user_id)
+        except ValidationError as err:
+            return HttpResponse(err)
+        else:
             new_log = LocationHistory(location_latitude=lat, location_longitude=long, location_accuracy=accuracy,location_datetime=datetime.datetime.now(),user=x)
             new_log.save()
-        except:
-            return HttpResponse("Error creating location data")
 
-        return HttpResponse(f"Lat: {lat}\nLong: {long}\nAccuracy: {accuracy}")
+        return HttpResponse(f"Log Created: \nLat: {lat}\nLong: {long}\nAccuracy: {accuracy}")
         
 
     else:
