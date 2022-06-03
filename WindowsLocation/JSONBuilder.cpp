@@ -26,7 +26,7 @@
 	}
 
 	void JSONBuilder::EndObject() {
-		hasValue = 0;  
+		hasValue = false;  
 		JSONString += L'}';
 	}
 
@@ -34,28 +34,28 @@
 		if (hasValue)
 			JSONString += L',';
 		JSONString += (L"\"" + Key + L"\"" + L':' + std::to_wstring(Value) + L'\n');
-		hasValue++;
+		hasValue = true;
 	}
 
 	void JSONBuilder::AddValue(const std::wstring& Key, const std::wstring& Value) {
 		if (hasValue)
 			JSONString += L',\n';
 		JSONString += (L"\"" + Key + L"\"" + L':' + L"\"" + Value + L"\"");
-		hasValue++;
+		hasValue = true;
 	}
 	void JSONBuilder::AddArray(const std::wstring& Key, const std::wstring& jsonArray) {
 		if(hasValue)
 			JSONString += L',\n';
 
 		JSONString += L"\"" + Key + L"\"" + L':' + L'[' + jsonArray + L']';
-		hasValue++;
+		hasValue = true;
 	}
 
 	void JSONBuilder::AddObject(const std::wstring& Key, const std::wstring& jsonObject) { // jsonObject should already contain 
 		if (hasValue)
 			JSONString += L',\n';
 		JSONString += (L"\"" + Key + L"\"" + L':'  + jsonObject);
-		hasValue++;
+		hasValue = true;
 	}
 
 	void JSONBuilder::AddJSON(const std::wstring& json) {

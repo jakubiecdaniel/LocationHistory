@@ -74,7 +74,6 @@ VOID SvcInit(DWORD dwArgc, LPTSTR* lpszArgv) { // Perform Service Specific inita
 	ReportSvcStatus(SERVICE_RUNNING, NO_ERROR, 0);
 	//auto logger = spdlog::get("JSON Error Logs");
 
-	
 	auto logger = spdlog::get("Service Logs");
 	
 	do {
