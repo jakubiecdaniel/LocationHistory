@@ -19,14 +19,27 @@ const auto APP_PATH = L"/LocationHistory/add/";
 const auto APP_PORT = 8000;
 
 int checkGoogleApiError(std::string response) {
-	for (auto& c : response) 
-		c = toupper(c);
+	const int SUCCESS = 0;
+	const int FAILURE = 1;
 
-	if (response.find("ERROR") != std::string::npos) {
-		return 0;
+	JSONParser jp;
+	JSON google_json;
+	try {
+		google_json = jp.string_to_json(response);
+	}
+	catch (std::runtime_error err) {
+		std::cout << err.what() << "\n";
+		return FAILURE;
 	}
 
-	return 1;
+	JSON_VALUE error = google_json["error"];
+
+	if (std::holds_alternative<std::string>(error.json_value) && std::get<std::string>(error.json_value) == "") {
+		return SUCCESS;
+	}
+	else {
+		return FAILURE;
+	}
 
 }
 
@@ -57,11 +70,11 @@ std::string SendAPIRequest(const wchar_t* data, const wchar_t* url, const wchar_
 
 	std::vector<char> buf;
 
-	//Going to send data over in utf8
-	std::wstring_convert< std::codecvt_utf8<wchar_t> , wchar_t> converter;
+	//Going to send data over in utf8, this would lose any chars that dont fall in ASCII range.
+	std::wstring data_w(data);
+	std::string data_s(data_w.begin(), data_w.end());
 
-	std::string data_normal = converter.to_bytes(data);
-	data_size = strlen(data_normal.c_str());
+	data_size = strlen(data_s.c_str());
 	header_size = wcslen(headers);
 	total_size = data_size + header_size;
 
@@ -83,7 +96,7 @@ std::string SendAPIRequest(const wchar_t* data, const wchar_t* url, const wchar_
 		goto clean_up;
 	}
 
-	bRequest = WinHttpSendRequest(hRequest, headers, header_size, (LPVOID)data_normal.c_str(), data_size, data_size, 0);
+	bRequest = WinHttpSendRequest(hRequest, headers, header_size, (LPVOID)data_s.c_str(), data_size, data_size, 0);
 	if (!bRequest) {
 		printf("Error %u in WinHttpSendRequest.\n", GetLastError());
 
